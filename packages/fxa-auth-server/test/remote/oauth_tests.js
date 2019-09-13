@@ -11,7 +11,6 @@ const config = require('../../config').getProperties();
 const { OAUTH_SCOPE_OLD_SYNC } = require('../../lib/constants');
 const error = require('../../lib/error');
 const testUtils = require('../lib/util');
-const oauthServerModule = require('../../fxa-oauth-server/lib/server');
 
 const PUBLIC_CLIENT_ID = '3c49430b43dfba77';
 const OAUTH_CLIENT_NAME = 'Android Components Reference Browser';
@@ -28,32 +27,16 @@ describe('/oauth/ routes', function() {
   this.timeout(15000);
   let client;
   let email;
-  let oauthServer;
   let password;
   let server;
 
-  async function introspectToken(token) {
-    const res = await oauthServer.inject({
-      method: 'POST',
-      url: '/v1/introspect',
-      payload: {
-        token: token,
-      },
-    });
-    assert.equal(res.statusCode, 200);
-    return res.result;
-  }
-
   before(async () => {
     testUtils.disableLogs();
-    oauthServer = await oauthServerModule.create();
-    await oauthServer.start();
-    server = await TestServer.start(config, false, { oauthServer });
+    server = await TestServer.start(config, false);
   });
 
   after(async () => {
     await TestServer.stop(server);
-    await oauthServer.stop();
     testUtils.restoreStdoutWrite();
   });
 
@@ -340,16 +323,10 @@ describe('/oauth/ routes', function() {
     assert.ok(res.access_token);
     assert.ok(res.refresh_token);
 
-    let tokenStatus = await introspectToken(res.access_token);
-    assert.equal(tokenStatus.active, true);
-
     await client.revokeOAuthToken({
       client_id: PUBLIC_CLIENT_ID,
       token: res.access_token,
     });
-
-    tokenStatus = await introspectToken(res.access_token);
-    assert.equal(tokenStatus.active, false);
 
     const res2 = await client.grantOAuthTokens({
       client_id: PUBLIC_CLIENT_ID,
@@ -362,9 +339,6 @@ describe('/oauth/ routes', function() {
       client_id: PUBLIC_CLIENT_ID,
       token: res.refresh_token,
     });
-
-    tokenStatus = await introspectToken(res.refresh_token);
-    assert.equal(tokenStatus.active, false);
 
     try {
       await client.grantOAuthTokens({
