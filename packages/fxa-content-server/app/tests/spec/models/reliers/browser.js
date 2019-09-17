@@ -14,7 +14,7 @@ const CONTEXT = 'fx_desktop_v3';
 const COUNTRY = 'RO';
 const SYNC_SERVICE = 'sync';
 
-describe('models/reliers/sync', () => {
+describe('models/reliers/browser', () => {
   let err;
   let relier;
   let translator;

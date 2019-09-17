@@ -20,6 +20,10 @@ const QUERY_PARAMETER_SCHEMA = {
   // context is not available when verifying.
   context: Vat.string().min(1),
   country: Vat.string().valid(...AllowedCountries),
+  // user is signing into the browser and declined to Sync
+  doNotSync: Vat.boolean(),
+  // signals that the browser relier is capable of multiple services
+  multiService: Vat.boolean(),
   service: Vat.string(),
   // signin code, from an SMS. Note, this is *not* validated
   // because users that open the verification link with an
@@ -34,6 +38,8 @@ const QUERY_PARAMETER_SCHEMA = {
 export default Relier.extend({
   defaults: _.extend({}, Relier.prototype.defaults, {
     action: undefined,
+    doNotSync: false,
+    multiService: false,
     signinCode: undefined,
     tokenCode: false,
   }),

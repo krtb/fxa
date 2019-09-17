@@ -104,6 +104,15 @@ export default {
           });
         }
 
+        if (this.relier.get('service') !== 'sync') {
+          // flows that do not pass a service get asked of they want to Sync
+          return this.navigate('would_you_like_to_sync', {
+            account: account,
+            // propagate the onSubmitComplete to choose_what_to_sync screen if needed
+            onSubmitComplete: this.onSignInSuccess.bind(this),
+          });
+        }
+
         if (typeof options.onSuccess === 'function') {
           options.onSuccess();
         }

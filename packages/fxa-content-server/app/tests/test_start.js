@@ -120,7 +120,7 @@ require('./spec/models/reliers/oauth');
 require('./spec/models/reliers/pairing/authority');
 require('./spec/models/reliers/pairing/supplicant');
 require('./spec/models/reliers/relier');
-require('./spec/models/reliers/sync');
+require('./spec/models/reliers/browser');
 require('./spec/models/resume-token');
 require('./spec/models/security-events');
 require('./spec/models/support-form');

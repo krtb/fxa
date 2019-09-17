@@ -27,6 +27,14 @@ const View = FormView.extend(
       // a continuation function is passed in that should be called
       // when submit has completed.
       this.onSubmitComplete = this.model.get('onSubmitComplete');
+      this.source = this.model.get('source');
+
+      const isMultiservice = this.relier.get('multiService');
+      const isServiceSync = this.relier.get('service') === 'sync';
+      // we only want to show the do not sync button for multi-service browser,
+      // that are not logging into sync and that came from a sign up flow.
+      this.allowToDisableSync =
+        isMultiservice && !isServiceSync && this.source === 'signup';
     },
 
     getAccount() {
@@ -59,9 +67,13 @@ const View = FormView.extend(
           // See #5554
           .then(() => this.broker.persistVerificationData(account))
           .then(() => {
-            this.waitForSessionVerification(account, () =>
-              this.validateAndSubmit()
-            );
+            if (!this.allowToDisableSync) {
+              // we should only wait for session verification here
+              // if the user doesn't have an option to disable sync
+              this.waitForSessionVerification(account, () =>
+                this.validateAndSubmit()
+              );
+            }
           })
       );
     },
@@ -72,12 +84,13 @@ const View = FormView.extend(
     },
 
     setInitialContext(context) {
-      var account = this.getAccount();
+      const account = this.getAccount();
       const engines = this._getOfferedEngines();
 
       context.set({
         email: account.get('email'),
         engines,
+        showDoNotSyncButton: this.allowToDisableSync,
       });
     },
 

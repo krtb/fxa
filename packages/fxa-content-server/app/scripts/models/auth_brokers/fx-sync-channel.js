@@ -23,6 +23,7 @@ const ALLOWED_LOGIN_FIELDS = [
   'keyFetchToken',
   'offeredSyncEngines',
   'sessionToken',
+  'services',
   'uid',
   'unwrapBKey',
   'verified',
@@ -241,6 +242,7 @@ const FxSyncChannelAuthenticationBroker = FxSyncAuthenticationBroker.extend(
        * already, so no need here too.
        */
       const loginData = this._getLoginData(account);
+
       if (!this._hasRequiredLoginFields(loginData)) {
         return Promise.resolve();
       }
@@ -255,7 +257,6 @@ const FxSyncChannelAuthenticationBroker = FxSyncAuthenticationBroker.extend(
         return Promise.resolve();
       }
       this._uidOfLoginNotification = loginData.uid;
-
       return this.send(this.getCommand('LOGIN'), loginData);
     },
 
@@ -274,6 +275,23 @@ const FxSyncChannelAuthenticationBroker = FxSyncAuthenticationBroker.extend(
      */
     _getLoginData(account) {
       const loginData = account.pick(ALLOWED_LOGIN_FIELDS);
+      const isMultiService = this.relier.get('multiService');
+      if (isMultiService) {
+        // if browser is multi service capable then we should send 'sync' properties
+        // in a different format
+        loginData.services = {};
+        if (!this.relier.get('doNotSync')) {
+          loginData.services.sync = {
+            offeredEngines: loginData.offeredSyncEngines,
+            declinedEngines: loginData.declinedSyncEngines,
+          };
+        }
+
+        // these should not be sent to a multi-service capable browser
+        delete loginData.offeredSyncEngines;
+        delete loginData.declinedSyncEngines;
+      }
+
       loginData.verified = !!loginData.verified;
       loginData.verifiedCanLinkAccount = !!this._verifiedCanLinkEmail;
       return _.omit(loginData, _.isUndefined);

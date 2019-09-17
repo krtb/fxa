@@ -52,6 +52,12 @@ export default BaseAuthenticationBroker.extend({
    */
   onFxaStatus(response = {}) {
     const syncEngines = this.get('chooseWhatToSyncWebV1Engines');
+    const multiService =
+      response.capabilities && response.capabilities.multiService;
+    this.relier.set('multiService', multiService);
+    if (multiService) {
+      this.relier.set('service', response.clientId);
+    }
     const additionalEngineIds =
       response.capabilities && response.capabilities.engines;
     if (syncEngines && additionalEngineIds) {

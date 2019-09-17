@@ -74,7 +74,7 @@ export default function(config) {
      * @returns {Boolean}
      */
     isSyncSuggestionEnabled() {
-      return !this.relier.get('service');
+      return !this.relier.get('service') && !this.relier.get('context');
     },
 
     onSuggestSyncDismiss() {
