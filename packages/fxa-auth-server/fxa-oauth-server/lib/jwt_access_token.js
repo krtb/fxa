@@ -35,6 +35,10 @@ exports.create = async function generateJWTAccessToken(accessToken, grant) {
     sub: await sub(grant.userId, grant.clientId, grant.ppidSeed),
   };
 
+  if (grant['fxa-subscriptions']) {
+    claims['fxa-subscriptions'] = grant['fxa-subscriptions'];
+  }
+
   return {
     ...accessToken,
     jwt_token: await exports.sign(claims),

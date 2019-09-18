@@ -189,6 +189,9 @@
   },
   "allowHttpRedirects": true,
   "authServerSecrets": ["megaz0rd"],
+  "auth": {
+    "sharedSecret": "devsecret"
+  },
   "scopes": [
     {
       "scope": "https://identity.mozilla.com/apps/notes",

@@ -966,7 +966,14 @@ module.exports = (
       path: '/account/profile',
       options: {
         auth: {
-          strategies: ['sessionToken', 'oauthToken'],
+          strategies: ['sessionToken', 'oauthToken', 'profileSecret'],
+        },
+        validate: {
+          query: {
+            client_id: isA.string().optional(),
+            scope: isA.string().optional(),
+            uid: isA.string().optional(),
+          },
         },
         response: {
           schema: {
@@ -995,6 +1002,10 @@ module.exports = (
           uid = auth.credentials.uid;
           scope = { contains: () => true };
           client_id = null;
+        } else if (auth.strategy === 'profileSecret') {
+          uid = request.query.uid;
+          scope = ScopeSet.fromString(request.query.scope);
+          client_id = request.query.client_id;
         } else {
           uid = auth.credentials.user;
           scope = ScopeSet.fromArray(auth.credentials.scope);
@@ -1026,13 +1037,13 @@ module.exports = (
           config.subscriptions.enabled &&
           scope.contains('profile:subscriptions')
         ) {
-          const capabilities = await determineClientVisibleSubscriptionCapabilities(
+          const capabilities = (await determineClientVisibleSubscriptionCapabilities(
             config,
             auth,
             db,
             uid,
             client_id
-          );
+          )) || ['my-sub'];
           if (capabilities) {
             res.subscriptions = capabilities;
           }

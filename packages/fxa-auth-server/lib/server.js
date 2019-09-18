@@ -382,6 +382,19 @@ async function create(log, error, config, routes, db, oauthdb, translator) {
   }));
   server.auth.strategy('subscriptionsSecret', 'subscriptionsSecret');
 
+  server.auth.scheme('profileSecret', () => ({
+    async authenticate(request, h) {
+      if (
+        constantTimeCompare(request.headers.authorization, SUBSCRIPTIONS_SECRET)
+      ) {
+        return h.authenticated({ credentials: {} });
+      }
+
+      throw error.invalidToken();
+    },
+  }));
+  server.auth.strategy('profileSecret', 'profileSecret');
+
   // routes should be registered after all auth strategies have initialized:
   // ref: http://hapijs.com/tutorials/auth
 
