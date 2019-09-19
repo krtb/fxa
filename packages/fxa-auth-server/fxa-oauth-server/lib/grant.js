@@ -231,7 +231,7 @@ exports.generateAccessToken = async function generateAccessToken(grant) {
   if (grant.scope.contains('profile:subscriptions')) {
     const profile = await authServer.getUserProfile({
       client_id: hex(grant.clientId),
-      scope: 'profile',
+      scope: 'profile:subscriptions',
       uid: hex(grant.userId),
     });
     grant['fxa-subscriptions'] = profile.subscriptions;

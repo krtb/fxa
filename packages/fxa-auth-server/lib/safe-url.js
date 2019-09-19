@@ -30,7 +30,7 @@
 const error = require('./error');
 const impl = require('safe-url-assembler')();
 
-const SAFE_URL_COMPONENT = /^[\w.]+$/;
+const SAFE_URL_COMPONENT = /^[\w.:]+$/;
 
 module.exports = log =>
   class SafeUrl {

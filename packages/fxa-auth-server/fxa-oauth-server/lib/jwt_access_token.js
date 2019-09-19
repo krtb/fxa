@@ -36,7 +36,7 @@ exports.create = async function generateJWTAccessToken(accessToken, grant) {
   };
 
   if (grant['fxa-subscriptions']) {
-    claims['fxa-subscriptions'] = grant['fxa-subscriptions'];
+    claims.scope = `${claims.scope} ${grant['fxa-subscriptions']}`;
   }
 
   return {

@@ -16,7 +16,6 @@ const SOME_DISALLOWED_GRAPHEMES = [
   '&',
   "'",
   '/',
-  ':',
   ';',
   '=',
   '?',
@@ -192,6 +191,21 @@ describe('require:', () => {
       assert.equal(
         safeUrl.render({ bar: 'wibble', baz: 'blee' }),
         '/foo/wibble/blee'
+      );
+    });
+  });
+
+  describe('allows a query param with `:`', () => {
+    let safeUrl;
+
+    beforeEach(() => {
+      safeUrl = new SafeUrl('/foo');
+    });
+
+    it('interpolates correctly', () => {
+      assert.equal(
+        safeUrl.render({}, { bar: 'wibble:wobble' }),
+        '/foo?bar=wibble%3Awobble'
       );
     });
   });
