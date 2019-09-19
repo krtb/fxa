@@ -7,24 +7,15 @@ const Joi = require('joi');
 
 module.exports = (log, config) => {
   const AuthServerAPI = createBackendServiceAPI(log, config, 'auth', {
-    getUserProfile: {
+    getUserSubscriptions: {
       path: '/v1/account/profile',
       method: 'GET',
       validate: {
         query: {
           client_id: Joi.string().required(),
-          scope: Joi.string().required(),
           uid: Joi.string().required(),
         },
         response: {
-          email: Joi.string().optional(),
-          locale: Joi.string()
-            .optional()
-            .allow(null),
-          authenticationMethods: Joi.array()
-            .items(Joi.string().required())
-            .optional(),
-          authenticatorAssuranceLevel: Joi.number().min(0),
           subscriptions: Joi.array()
             .items(Joi.string().required())
             .optional(),
@@ -48,11 +39,10 @@ module.exports = (log, config) => {
       api.close();
     },
 
-    async getUserProfile({ client_id, scope, uid }) {
+    async getUserSubscriptions({ client_id, uid }) {
       try {
-        return await api.getUserProfile({
+        return await api.getUserSubscriptions({
           client_id,
-          scope,
           uid,
         });
       } catch (err) {

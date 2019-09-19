@@ -229,9 +229,8 @@ exports.generateAccessToken = async function generateAccessToken(grant) {
   // service request. Once the two services are merged, we'll be able
   // to get this info by directly making a DB call ourselves.
   if (grant.scope.contains('profile:subscriptions')) {
-    const profile = await authServer.getUserProfile({
+    const profile = await authServer.getUserSubscriptions({
       client_id: hex(grant.clientId),
-      scope: 'profile:subscriptions',
       uid: hex(grant.userId),
     });
     grant['fxa-subscriptions'] = profile.subscriptions;

@@ -966,12 +966,11 @@ module.exports = (
       path: '/account/profile',
       options: {
         auth: {
-          strategies: ['sessionToken', 'oauthToken', 'profileSecret'],
+          strategies: ['sessionToken', 'oauthToken', 'subscriptionsSecret'],
         },
         validate: {
           query: {
             client_id: isA.string().optional(),
-            scope: isA.string().optional(),
             uid: isA.string().optional(),
           },
         },
@@ -1002,9 +1001,9 @@ module.exports = (
           uid = auth.credentials.uid;
           scope = { contains: () => true };
           client_id = null;
-        } else if (auth.strategy === 'profileSecret') {
+        } else if (auth.strategy === 'subscriptionsSecret') {
           uid = request.query.uid;
-          scope = ScopeSet.fromString(request.query.scope);
+          scope = ScopeSet.fromString('profile:subscriptions');
           client_id = request.query.client_id;
         } else {
           uid = auth.credentials.user;

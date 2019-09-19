@@ -112,6 +112,7 @@ module.exports = function createBackendServiceAPI(
     const querySchema = Joi.compile(validation.query || Joi.object());
     const payloadSchema = Joi.compile(validation.payload || Joi.object());
     const responseSchema = Joi.compile(validation.response || Joi.any());
+    const headerSchema = Joi.compile(validation.headers || Joi.object());
 
     let expectedNumArgs = path.params().length;
     if (validation.query) {
@@ -206,6 +207,11 @@ module.exports = function createBackendServiceAPI(
         : opts.method === 'GET'
         ? null
         : {};
+
+      const headers = validation.headers
+        ? await validate('headers', args[i++], headerSchema)
+        : {};
+
       // Unexpected extra fields in the service response should not be a fatal error,
       // but we also don't want them polluting our code. So, stripUnknown=true.
       const response = await sendRequest(
@@ -215,7 +221,7 @@ module.exports = function createBackendServiceAPI(
         params,
         query,
         payload,
-        this._headers
+        { ...this._headers, ...headers }
       );
       return await validate('response', response, responseSchema, {
         stripUnknown: true,
