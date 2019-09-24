@@ -73,7 +73,9 @@ export const actions = createActions(
     fetchSubscriptions: (apiClient: any) =>
       apiClient.get(`${apiClient.config.servers.auth.url}/v1/oauth/subscriptions/active`),
     fetchToken: (apiClient: any) =>
-      apiClient.post(`${apiClient.config.servers.oauth.url}/v1/introspect`),
+      apiClient.post(`${apiClient.config.servers.oauth.url}/v1/introspect`, {
+        token: apiClient.accessToken,
+      }),
     fetchCustomer: (apiClient: any) =>
       apiClient.get(`${apiClient.config.servers.auth.url}/v1/oauth/subscriptions/customer`),
     createSubscription: (
