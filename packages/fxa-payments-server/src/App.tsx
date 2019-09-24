@@ -23,7 +23,6 @@ const Subscriptions = React.lazy(() => import('./routes/Subscriptions'));
 const RouteFallback = () => <LoadingOverlay isLoading={true} />;
 
 type AppProps = {
-  // accessToken: string;
   config: Config;
   apiClient: any,
   store: Store;
@@ -35,7 +34,6 @@ type AppProps = {
 };
 
 export const App = ({
-  // accessToken,
   config,
   apiClient,
   store,
