@@ -179,7 +179,7 @@ export const elementChangeResponse = ({
 });
 
 export const defaultAppContextValue = (): AppContextType => ({
-  accessToken: 'at_12345',
+  apiClient: {},
   config,
   queryParams: {},
   matchMedia: jest.fn().mockImplementation(query => false),

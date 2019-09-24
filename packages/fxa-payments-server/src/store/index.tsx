@@ -5,12 +5,7 @@ import ReduxThunk, { ThunkMiddleware } from 'redux-thunk';
 import { createPromise as promiseMiddleware } from 'redux-promise-middleware';
 import typeToReducer from 'type-to-reducer';
 
-import { config } from '../lib/config';
-
 import {
-  apiGet,
-  apiDelete,
-  apiPost,
   fetchDefault,
   fetchReducer,
   setStatic,
@@ -71,64 +66,41 @@ export const selectors: Selectors = {
 
 export const actions = createActions(
   {
-    fetchProfile: (accessToken: string) =>
-      apiGet(accessToken, `${config.servers.profile.url}/v1/profile`),
-    fetchPlans: (accessToken: string) =>
-      apiGet(
-        accessToken,
-        `${config.servers.auth.url}/v1/oauth/subscriptions/plans`
-      ),
-    fetchSubscriptions: (accessToken: string) =>
-      apiGet(
-        accessToken,
-        `${config.servers.auth.url}/v1/oauth/subscriptions/active`
-      ),
-    fetchToken: (accessToken: string) =>
-      apiPost(accessToken, `${config.servers.oauth.url}/v1/introspect`, {
-        token: accessToken,
-      }),
-    fetchCustomer: (accessToken: string) =>
-      apiGet(
-        accessToken,
-        `${config.servers.auth.url}/v1/oauth/subscriptions/customer`
-      ),
+    fetchProfile: (apiClient: any) =>
+      apiClient.get(`${apiClient.config.servers.profile.url}/v1/profile`),
+    fetchPlans: (apiClient: any) =>
+      apiClient.get(`${apiClient.config.servers.auth.url}/v1/oauth/subscriptions/plans`),
+    fetchSubscriptions: (apiClient: any) =>
+      apiClient.get(`${apiClient.config.servers.auth.url}/v1/oauth/subscriptions/active`),
+    fetchToken: (apiClient: any) =>
+      apiClient.post(`${apiClient.config.servers.oauth.url}/v1/introspect`),
+    fetchCustomer: (apiClient: any) =>
+      apiClient.get(`${apiClient.config.servers.auth.url}/v1/oauth/subscriptions/customer`),
     createSubscription: (
-      accessToken: string,
+      apiClient: any,
       params: {
         paymentToken: string;
         planId: string;
         displayName: string;
       }
     ) =>
-      apiPost(
-        accessToken,
-        `${config.servers.auth.url}/v1/oauth/subscriptions/active`,
-        params
-      ),
-    cancelSubscription: (accessToken: string, subscriptionId: string) =>
-      apiDelete(
-        accessToken,
-        `${config.servers.auth.url}/v1/oauth/subscriptions/active/${subscriptionId}`
-      ).then(result => {
+      apiClient.post(`${apiClient.config.servers.auth.url}/v1/oauth/subscriptions/active`, params),
+    cancelSubscription: (apiClient: any, subscriptionId: string) =>
+      apiClient.delete(`${apiClient.config.servers.auth.url}/v1/oauth/subscriptions/active/${subscriptionId}`)
+      .then((result: any) => {
         // HACK: cancellation response does not include subscriptionId, but we want it.
         return { ...result, subscriptionId };
       }),
     reactivateSubscription: async (
-      accessToken: string,
+      apiClient: any,
       subscriptionId: string
     ) =>
-      apiPost(
-        accessToken,
-        `${config.servers.auth.url}/v1/oauth/subscriptions/reactivate`,
-        { subscriptionId }
-      ),
+      apiClient.post(`${apiClient.config.servers.auth.url}/v1/oauth/subscriptions/reactivate`, { subscriptionId }),
     updatePayment: (
-      accessToken: string,
+      apiClient: any,
       { paymentToken }: { paymentToken: string }
     ) =>
-      apiPost(
-        accessToken,
-        `${config.servers.auth.url}/v1/oauth/subscriptions/updatePayment`,
+    apiClient.post(`${apiClient.config.servers.auth.url}/v1/oauth/subscriptions/updatePayment`,
         { paymentToken }
       ),
   },
@@ -150,39 +122,39 @@ const handleThunkError = (err: any) => {
 
 // Convenience functions to produce action sequences via react-thunk functions
 export const thunks = {
-  fetchProductRouteResources: (accessToken: string) => async (
+  fetchProductRouteResources: (apiClient: any) => async (
     dispatch: Function
   ) => {
     await Promise.all([
-      dispatch(actions.fetchPlans(accessToken)),
-      dispatch(actions.fetchProfile(accessToken)),
-      dispatch(actions.fetchCustomer(accessToken)),
-      dispatch(actions.fetchSubscriptions(accessToken)),
+      dispatch(actions.fetchPlans(apiClient)),
+      dispatch(actions.fetchProfile(apiClient)),
+      dispatch(actions.fetchCustomer(apiClient)),
+      dispatch(actions.fetchSubscriptions(apiClient)),
     ]).catch(handleThunkError);
   },
 
-  fetchSubscriptionsRouteResources: (accessToken: string) => async (
+  fetchSubscriptionsRouteResources: (apiClient: any) => async (
     dispatch: Function
   ) => {
     await Promise.all([
-      dispatch(actions.fetchPlans(accessToken)),
-      dispatch(actions.fetchProfile(accessToken)),
-      dispatch(actions.fetchCustomer(accessToken)),
-      dispatch(actions.fetchSubscriptions(accessToken)),
+      dispatch(actions.fetchPlans(apiClient)),
+      dispatch(actions.fetchProfile(apiClient)),
+      dispatch(actions.fetchCustomer(apiClient)),
+      dispatch(actions.fetchSubscriptions(apiClient)),
     ]).catch(handleThunkError);
   },
 
-  fetchCustomerAndSubscriptions: (accessToken: string) => async (
+  fetchCustomerAndSubscriptions: (apiClient: any) => async (
     dispatch: Function
   ) => {
     await Promise.all([
-      dispatch(actions.fetchCustomer(accessToken)),
-      dispatch(actions.fetchSubscriptions(accessToken)),
+      dispatch(actions.fetchCustomer(apiClient)),
+      dispatch(actions.fetchSubscriptions(apiClient)),
     ]).catch(handleThunkError);
   },
 
   createSubscriptionAndRefresh: (
-    accessToken: string,
+    apiClient: any,
     params: {
       paymentToken: string;
       planId: string;
@@ -190,45 +162,45 @@ export const thunks = {
     }
   ) => async (dispatch: Function) => {
     try {
-      await dispatch(actions.createSubscription(accessToken, params));
-      await dispatch(thunks.fetchCustomerAndSubscriptions(accessToken));
+      await dispatch(actions.createSubscription(apiClient, params));
+      await dispatch(thunks.fetchCustomerAndSubscriptions(apiClient));
     } catch (err) {
       handleThunkError(err);
     }
   },
 
   cancelSubscriptionAndRefresh: (
-    accessToken: string,
+    apiClient: any,
     subscriptionId: object
   ) => async (dispatch: Function, getState: Function) => {
     try {
-      await dispatch(actions.cancelSubscription(accessToken, subscriptionId));
-      await dispatch(thunks.fetchCustomerAndSubscriptions(accessToken));
+      await dispatch(actions.cancelSubscription(apiClient, subscriptionId));
+      await dispatch(thunks.fetchCustomerAndSubscriptions(apiClient));
     } catch (err) {
       handleThunkError(err);
     }
   },
 
   reactivateSubscriptionAndRefresh: (
-    accessToken: string,
+    apiClient: any,
     subscriptionId: object
   ) => async (dispatch: Function, getState: Function) => {
     try {
       await dispatch(
-        actions.reactivateSubscription(accessToken, subscriptionId)
+        actions.reactivateSubscription(apiClient, subscriptionId)
       );
-      await dispatch(thunks.fetchCustomerAndSubscriptions(accessToken));
+      await dispatch(thunks.fetchCustomerAndSubscriptions(apiClient));
     } catch (err) {
       handleThunkError(err);
     }
   },
 
-  updatePaymentAndRefresh: (accessToken: string, params: object) => async (
+  updatePaymentAndRefresh: (apiClient: any, params: object) => async (
     dispatch: Function
   ) => {
     try {
-      await dispatch(actions.updatePayment(accessToken, params));
-      await dispatch(thunks.fetchCustomerAndSubscriptions(accessToken));
+      await dispatch(actions.updatePayment(apiClient, params));
+      await dispatch(thunks.fetchCustomerAndSubscriptions(apiClient));
       setTimeout(
         () => dispatch(actions.resetUpdatePayment()),
         RESET_PAYMENT_DELAY

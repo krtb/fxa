@@ -6,6 +6,7 @@ import * as Sentry from '@sentry/browser';
 import { config, readConfigFromMeta } from './lib/config';
 import './index.scss';
 import App from './App';
+import APIClient from './lib/apiClient'
 import ScreenInfo from './lib/screen-info';
 
 async function init() {
@@ -26,13 +27,14 @@ async function init() {
   // We should have gotten an accessToken or else redirected, but guard here
   // anyway because App component requires a token.
   if (accessToken) {
-    store.dispatch(actions.fetchToken(accessToken));
-    store.dispatch(actions.fetchProfile(accessToken));
+    const apiClient = new APIClient(config, accessToken);
+    store.dispatch(actions.fetchToken(apiClient));
+    store.dispatch(actions.fetchProfile(apiClient));
 
     render(
       <App
         {...{
-          accessToken,
+          apiClient,
           config,
           store,
           queryParams,

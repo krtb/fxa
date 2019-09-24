@@ -23,8 +23,9 @@ const Subscriptions = React.lazy(() => import('./routes/Subscriptions'));
 const RouteFallback = () => <LoadingOverlay isLoading={true} />;
 
 type AppProps = {
-  accessToken: string;
+  // accessToken: string;
   config: Config;
+  apiClient: any,
   store: Store;
   queryParams: QueryParams;
   matchMedia: (query: string) => boolean;
@@ -34,8 +35,9 @@ type AppProps = {
 };
 
 export const App = ({
-  accessToken,
+  // accessToken,
   config,
+  apiClient,
   store,
   queryParams,
   matchMedia,
@@ -44,8 +46,8 @@ export const App = ({
   locationReload,
 }: AppProps) => {
   const appContextValue: AppContextType = {
-    accessToken,
     config,
+    apiClient,
     queryParams,
     matchMedia,
     navigateToUrl,

@@ -4,7 +4,7 @@ import { Config, config } from './config';
 import ScreenInfo from './screen-info';
 
 export type AppContextType = {
-  accessToken: string;
+  apiClient: any,
   config: Config;
   queryParams: QueryParams;
   matchMedia: (query: string) => boolean;
@@ -17,7 +17,7 @@ export type AppContextType = {
 const noopFunction = () => {};
 
 export const defaultAppContext = {
-  accessToken: '',
+  apiClient: {},
   config,
   getScreenInfo: () => new ScreenInfo(),
   locationReload: noopFunction,

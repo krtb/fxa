@@ -14,7 +14,7 @@ import PaymentForm from '../../components/PaymentForm';
 import DialogMessage from '../../components/DialogMessage';
 
 type PaymentUpdateFormProps = {
-  accessToken: string;
+  apiClient: any;
   customer: CustomerFetchState;
   customerSubscription: CustomerSubscription;
   resetUpdatePayment: Function;
@@ -24,7 +24,7 @@ type PaymentUpdateFormProps = {
 };
 
 export const PaymentUpdateForm = ({
-  accessToken,
+  apiClient,
   updatePayment,
   updatePaymentStatus,
   resetUpdatePayment,
@@ -45,7 +45,7 @@ export const PaymentUpdateForm = ({
   const onPayment = useCallback(
     (tokenResponse: stripe.TokenResponse) => {
       if (tokenResponse && tokenResponse.token) {
-        updatePayment(accessToken, {
+        updatePayment(apiClient, {
           paymentToken: tokenResponse.token.id,
         });
       } else {
@@ -55,7 +55,7 @@ export const PaymentUpdateForm = ({
         setCreateTokenError(error);
       }
     },
-    [accessToken, updatePayment, setCreateTokenError]
+    [apiClient, updatePayment, setCreateTokenError]
   );
 
   const onPaymentError = useCallback(

@@ -1,5 +1,5 @@
 import { Store as ReduxStore } from 'redux';
-import { APIError } from './utils';
+import { APIError } from '../lib/apiClient';
 
 export interface Profile {
   amrValues: Array<string>;
