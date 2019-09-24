@@ -65,10 +65,8 @@ export const Subscriptions = ({
 }: SubscriptionsProps) => {
   const {
     apiClient,
-    config,
     locationReload,
     navigateToUrl,
-    queryParams,
   } = useContext(AppContext);
 
   const [showPaymentSuccessAlert, setShowPaymentSuccessAlert] = useState(true);
@@ -76,7 +74,7 @@ export const Subscriptions = ({
     () => setShowPaymentSuccessAlert(false),
     [setShowPaymentSuccessAlert]
   );
-  const SUPPORT_FORM_URL = `${config.servers.content.url}/support`;
+  const SUPPORT_FORM_URL = `${apiClient.config.servers.content.url}/support`;
 
   // Fetch subscriptions and customer on initial render or auth change.
   useEffect(() => {

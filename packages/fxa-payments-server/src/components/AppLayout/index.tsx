@@ -8,7 +8,7 @@ export type AppLayoutProps = {
 };
 
 export const AppLayout = ({ children }: AppLayoutProps) => {
-  const { config } = useContext(AppContext);
+  const { config } = useContext(AppContext).apiClient;
 
   return <>
     <div id="stage" data-testid="stage" className="fade-in-forward" style={{ opacity: 1 }}>
@@ -69,7 +69,7 @@ export const SettingsLayout = ({ children }: SettingsLayout) => {
     return () => document.body.classList.remove('settings');
   }, [children]);
 
-  const { config } = useContext(AppContext);
+  const { config } = useContext(AppContext).apiClient;
   const homeURL = `${config.servers.content.url}/settings`;
   let breadcrumbs = (
     <ol className="breadcrumbs" data-testid="breadcrumbs">

@@ -14,7 +14,6 @@ import DialogMessage from '../../components/DialogMessage';
 import AppContext from '../../lib/AppContext';
 
 type SubscriptionItemProps = {
-  // apiClient: string;
   apiClient: any;
   customerSubscription: CustomerSubscription;
   subscription: Subscription | null;

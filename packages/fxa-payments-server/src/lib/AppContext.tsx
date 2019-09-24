@@ -1,11 +1,9 @@
 import React from 'react';
 import { QueryParams } from './types';
-import { Config, config } from './config';
 import ScreenInfo from './screen-info';
 
 export type AppContextType = {
   apiClient: any,
-  config: Config;
   queryParams: QueryParams;
   matchMedia: (query: string) => boolean;
   navigateToUrl: (url: string) => void;
@@ -18,7 +16,6 @@ const noopFunction = () => {};
 
 export const defaultAppContext = {
   apiClient: {},
-  config,
   getScreenInfo: () => new ScreenInfo(),
   locationReload: noopFunction,
   matchMedia: () => false,

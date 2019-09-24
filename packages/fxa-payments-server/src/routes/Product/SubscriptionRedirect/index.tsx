@@ -14,7 +14,7 @@ export const SubscriptionRedirect = ({
   plan: { product_id, plan_name },
 }: SubscriptionRedirectProps) => {
   const {
-    config: { productRedirectURLs },
+    apiClient: { config: { productRedirectURLs } },
     navigateToUrl,
   } = useContext(AppContext);
 

@@ -5,7 +5,6 @@ import { BrowserRouter as Router, Route, Redirect } from 'react-router-dom';
 import * as Sentry from '@sentry/browser';
 
 import { QueryParams } from './lib/types';
-import { Config } from './lib/config';
 import { getErrorMessage } from './lib/errors';
 import { Store } from './store/types';
 import { AppContext, AppContextType } from './lib/AppContext';
@@ -23,7 +22,6 @@ const Subscriptions = React.lazy(() => import('./routes/Subscriptions'));
 const RouteFallback = () => <LoadingOverlay isLoading={true} />;
 
 type AppProps = {
-  config: Config;
   apiClient: any,
   store: Store;
   queryParams: QueryParams;
@@ -34,7 +32,6 @@ type AppProps = {
 };
 
 export const App = ({
-  config,
   apiClient,
   store,
   queryParams,
@@ -44,7 +41,6 @@ export const App = ({
   locationReload,
 }: AppProps) => {
   const appContextValue: AppContextType = {
-    config,
     apiClient,
     queryParams,
     matchMedia,
@@ -55,7 +51,7 @@ export const App = ({
   return (
     <AppContext.Provider value={appContextValue}>
       <AppErrorBoundary>
-        <StripeProvider apiKey={config.stripe.apiKey}>
+        <StripeProvider apiKey={apiClient.config.stripe.apiKey}>
           <ReduxProvider store={store}>
             <Router>
               <React.Suspense fallback={<RouteFallback />}>
