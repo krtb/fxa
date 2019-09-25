@@ -21,10 +21,11 @@ import Constants from './constants';
 import Backbone from 'backbone';
 import Duration from 'duration';
 import Environment from './environment';
-import Flow from '../models/flow';
+import FlowModel from '../models/flow';
 import NotifierMixin from './channels/notifier-mixin';
 import speedTrap from 'speed-trap';
 import Strings from './strings';
+import SubscriptionModel from '../models/subscription';
 import xhr from './xhr';
 
 // Speed trap is a singleton, convert it
@@ -53,8 +54,8 @@ const ALLOWED_FIELDS = [
   'migration',
   'navigationTiming',
   'numStoredAccounts',
-  'plan_id',
-  'product_id',
+  'planId',
+  'productId',
   'reason',
   'referrer',
   'screen',
@@ -153,8 +154,6 @@ function Metrics(options = {}) {
   this._marketingImpressions = {};
   this._migration = options.migration || NOT_REPORTED_VALUE;
   this._numStoredAccounts = options.numStoredAccounts || '';
-  this._planId = options.planId || NOT_REPORTED_VALUE;
-  this._productId = options.productId || NOT_REPORTED_VALUE;
   this._referrer = this._window.document.referrer || NOT_REPORTED_VALUE;
   this._screenHeight = options.screenHeight || NOT_REPORTED_VALUE;
   this._screenWidth = options.screenWidth || NOT_REPORTED_VALUE;
@@ -163,6 +162,7 @@ function Metrics(options = {}) {
   // if navigationTiming is supported, the baseTime will be from
   // navigationTiming.navigationStart, otherwise Date.now().
   this._startTime = options.startTime || this._speedTrap.baseTime;
+  this._subscriptionModel = this._initializeSubscriptionModel();
   this._syncEngines = options.syncEngines || [];
   this._uid = options.uid || NOT_REPORTED_VALUE;
   this._uniqueUserId = options.uniqueUserId || NOT_REPORTED_VALUE;
@@ -205,7 +205,7 @@ _.extend(Metrics.prototype, Backbone.Events, {
     'set-email-domain': '_setEmailDomain',
     'set-sync-engines': '_setSyncEngines',
     'set-uid': '_setUid',
-    'set-plan-and-product-id': '_setPlanProductId',
+    'subscription.initialize': '_initializeSubscriptionModel',
     'clear-uid': '_clearUid',
     'once!view-shown': '_setInitialView',
     /* eslint-enable sorting/sort-object-props */
@@ -222,7 +222,7 @@ _.extend(Metrics.prototype, Backbone.Events, {
       return;
     }
 
-    const flowModel = new Flow({
+    const flowModel = new FlowModel({
       metrics: this,
       sentryMetrics: this._sentryMetrics,
       window: this._window,
@@ -230,6 +230,23 @@ _.extend(Metrics.prototype, Backbone.Events, {
 
     if (flowModel.has('flowId')) {
       this._flowModel = flowModel;
+    }
+  },
+
+  /**
+   * @private
+   * Initialise the subscription model.
+   *
+   * @param {Object} model Optional model to initialise with.
+   *                       If unset, a fresh model is created.
+   */
+  _initializeSubscriptionModel(model) {
+    if (model && model.has('planId') && model.has('productId')) {
+      this._subscriptionModel = model;
+    } else {
+      this._subscriptionModel = new SubscriptionModel({
+        window: this._window,
+      });
     }
   },
 
@@ -383,8 +400,8 @@ _.extend(Metrics.prototype, Backbone.Events, {
       marketing: flattenHashIntoArrayOfObjects(this._marketingImpressions),
       migration: this._migration,
       numStoredAccounts: this._numStoredAccounts,
-      plan_id: this._planId,
-      product_id: this._productId,
+      planId: this._subscriptionModel.get('planId'),
+      productId: this._subscriptionModel.get('productId'),
       referrer: this._referrer,
       screen: {
         clientHeight: this._clientHeight,
